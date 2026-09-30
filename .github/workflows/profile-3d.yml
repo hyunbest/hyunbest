@@ -1,0 +1,62 @@
+name: Starry Contribution Garden
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '17 18 * * *' # 03:17 Asia/Seoul; actual start may be delayed
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/profile-3d.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: starry-contribution-garden
+  cancel-in-progress: false
+
+jobs:
+  generate:
+    if: github.repository == 'hyunbest/hyunbest'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Check out profile
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Generate contribution artwork
+        uses: yoshi389111/github-profile-3d-contrib@be61993e25e0d8df2afaa52ed8a0451cae3b34fd # 0.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.repository_owner }}
+      - name: Show artwork once generated
+        shell: bash
+        run: |
+          test -s profile-3d-contrib/profile-night-rainbow.svg
+          python3 - <<'PY'
+          from pathlib import Path
+          path = Path('README.md')
+          text = path.read_text(encoding='utf-8')
+          start = '<!-- CONTRIBUTIONS:START -->'
+          end = '<!-- CONTRIBUTIONS:END -->'
+          if text.count(start) != 1 or text.count(end) != 1:
+              raise SystemExit('Expected exactly one contribution marker pair')
+          before, rest = text.split(start, 1)
+          _, after = rest.split(end, 1)
+          artwork = '\n<p align="center"><img src="./profile-3d-contrib/profile-night-rainbow.svg" width="100%" alt="hyunbest의 실제 GitHub 기여 기록으로 생성한 3D 잔디" /></p>\n'
+          path.write_text(before + start + artwork + end + after, encoding='utf-8')
+          PY
+      - name: Save generated artwork
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- README.md profile-3d-contrib/
+          if git diff --cached --quiet; then
+            echo 'No artwork changes.'
+            exit 0
+          fi
+          git commit -m 'Update starry contribution garden'
+          git push
