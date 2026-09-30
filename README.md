@@ -37,7 +37,7 @@ Python · Linux · SQL을 중심으로 배운 것과 만든 것을 기록합니�
 작은 기록이 쌓여 하나의 풍경이 됩니다.
 
 <!-- CONTRIBUTIONS:START -->
-<p align="center"><a href="https://github.com/hyunbest?tab=overview">나의 GitHub 활동 기록 보기 ↗</a></p>
+<p align="center"><img src="./profile-3d-contrib/profile-night-rainbow.svg" width="100%" alt="hyunbest의 실제 GitHub 기여 기록으로 생성한 3D 잔디" /></p>
 <!-- CONTRIBUTIONS:END -->
 
 <br />
